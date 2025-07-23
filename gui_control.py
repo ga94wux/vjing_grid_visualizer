@@ -1,8 +1,10 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal, QObject
 
+
 class Param(QObject):
     updated = pyqtSignal(float, float, float, float, float, float, float, bool)
+
 
 class ControlWindow(QtWidgets.QWidget):
     def __init__(self, param):
@@ -11,30 +13,37 @@ class ControlWindow(QtWidgets.QWidget):
         self.init_ui()
 
     def init_ui(self):
-        self.slider_amp = self.create_slider(30, 0, 100)
-        self.slider_freq = self.create_slider(10, 0, 100)
-        self.slider_speed = self.create_slider(20, 0, 100)
-        self.slider_rot = self.create_slider(20, 0, 100)
-        self.slider_zoom = self.create_slider(50, 15, 100)
-        self.slider_color = self.create_slider(130, 0, 360)
-        self.slider_sens = self.create_slider(100, 1, 300)
-        self.checkbox_auto = QtWidgets.QCheckBox("Automatik")
-
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(QtWidgets.QLabel("Amplitude"))
+
+        self.slider_amp, self.label_amp = self.create_slider("Amplitude", 30, 0, 100, 10.0)
+        layout.addWidget(self.label_amp)
         layout.addWidget(self.slider_amp)
-        layout.addWidget(QtWidgets.QLabel("Frequency"))
+
+        self.slider_freq, self.label_freq = self.create_slider("Frequency", 10, 0, 100, 10.0)
+        layout.addWidget(self.label_freq)
         layout.addWidget(self.slider_freq)
-        layout.addWidget(QtWidgets.QLabel("Wave Speed"))
+
+        self.slider_speed, self.label_speed = self.create_slider("Wave Speed", 20, 0, 100, 10.0)
+        layout.addWidget(self.label_speed)
         layout.addWidget(self.slider_speed)
-        layout.addWidget(QtWidgets.QLabel("Rotation Speed"))
+
+        self.slider_rot, self.label_rot = self.create_slider("Rotation Speed", 20, 0, 100)
+        layout.addWidget(self.label_rot)
         layout.addWidget(self.slider_rot)
-        layout.addWidget(QtWidgets.QLabel("Zoom"))
+
+        self.slider_zoom, self.label_zoom = self.create_slider("Zoom", 50, 15, 100)
+        layout.addWidget(self.label_zoom)
         layout.addWidget(self.slider_zoom)
-        layout.addWidget(QtWidgets.QLabel("Color (Hue)"))
+
+        self.slider_color, self.label_color = self.create_slider("Color (Hue)", 130, 0, 360)
+        layout.addWidget(self.label_color)
         layout.addWidget(self.slider_color)
-        layout.addWidget(QtWidgets.QLabel("Sensitivity"))
+
+        self.slider_sens, self.label_sens = self.create_slider("Sensitivity", 100, 1, 300)
+        layout.addWidget(self.label_sens)
         layout.addWidget(self.slider_sens)
+
+        self.checkbox_auto = QtWidgets.QCheckBox("Automatik")
         layout.addWidget(self.checkbox_auto)
 
         self.setLayout(layout)
@@ -45,15 +54,21 @@ class ControlWindow(QtWidgets.QWidget):
 
         for s in [self.slider_amp, self.slider_freq, self.slider_speed,
                   self.slider_rot, self.slider_zoom, self.slider_color,
-                  self.slider_sens, self.checkbox_auto]:
-            s.valueChanged.connect(self.slider_changed) if isinstance(s, QtWidgets.QSlider) else s.stateChanged.connect(self.slider_changed)
+                  self.slider_sens]:
+            s.valueChanged.connect(self.slider_changed)
+        self.checkbox_auto.stateChanged.connect(self.slider_changed)
 
-    def create_slider(self, default=50, min_val=0, max_val=100):
+    def create_slider(self, label, default=50, min_val=0, max_val=100, scale=1.0):
         slider = QtWidgets.QSlider()
         slider.setOrientation(1)
         slider.setRange(min_val, max_val)
         slider.setValue(default)
-        return slider
+
+        label_widget = QtWidgets.QLabel(f"{label}: {default / scale:.2f}" if scale != 1.0 else f"{label}: {default}")
+        slider.valueChanged.connect(lambda val: label_widget.setText(
+            f"{label}: {val / scale:.2f}" if scale != 1.0 else f"{label}: {val}"))
+
+        return slider, label_widget
 
     def slider_changed(self):
         amp = self.slider_amp.value() / 10.0
@@ -65,6 +80,7 @@ class ControlWindow(QtWidgets.QWidget):
         sens = self.slider_sens.value()
         auto = self.checkbox_auto.isChecked()
         self.param.updated.emit(amp, freq, speed, rot, zoom, color, sens, auto)
+
 
 def run_gui(param):
     import sys
