@@ -1,12 +1,23 @@
-# Python cache
+# Cache und temporäre Dateien
 __pycache__/
 *.py[cod]
 
-# Virtual environments
+# Virtuelle Umgebungen
 venv/
 env/
 
-# System / Editor config (optional)
+# Paketverwaltung
+*.egg-info/
+*.lock
+pip-wheel-metadata/
+
+# Betriebssystem
 .DS_Store
-.vscode/
 Thumbs.db
+
+# IDEs & Editoren
+.vscode/
+.idea/
+
+# Sonstiges
+*.log
