@@ -4,6 +4,8 @@ from gui_control import Param, run_gui
 from renderer import Renderer
 from audio_fft import AudioAnalyzer
 
+# main
+
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
